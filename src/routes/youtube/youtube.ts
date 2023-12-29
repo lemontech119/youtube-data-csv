@@ -159,7 +159,7 @@ export const getYouTubeChannelData = async (
 
     const videos = videoList.map((item: any) => {
       return {
-        videoId: item.snippet.resourceId.videoId,
+        // videoId: item.snippet.resourceId.videoId,
         title: item.snippet.title
           .replace(/,/g, "")
           .replace(/\n/g, " ")
@@ -170,7 +170,7 @@ export const getYouTubeChannelData = async (
           .replace(/\n/g, " ")
           .replace(/\r/g, "")
           .replace(/,/g, ""),
-        channelId: item.snippet.channelId,
+        // channelId: item.snippet.channelId,
         channelTitle: item.snippet.channelTitle.replace(/,/g, ""),
         subscribersCount,
       };
