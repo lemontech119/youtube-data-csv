@@ -1,19 +1,22 @@
 <script>
   import { getYouTubeChannelData } from './youtube';
   import { jsonToCsv } from './util';
+  import { YoutubeCheckCondition } from './enum';
 
   let apiKey = '';
   let channelName = '';
+  let condition = YoutubeCheckCondition.All;
   let downloading = false;
 
   const handleSubmit = async () => {
     downloading = true;
     try {
-      const data = await getYouTubeChannelData(apiKey, channelName);
+      const data = await getYouTubeChannelData(apiKey, channelName, condition);
       const csv = jsonToCsv(data);
       downloadCSV(csv, `${channelName}.csv`);
       apiKey = '';
       channelName = '';
+      condition = YoutubeCheckCondition.All;
     } catch (error) {
       console.error('Error fetching YouTube data:', error);
     } finally {
@@ -76,6 +79,20 @@
   button:disabled {
     background-color: #ccc;
   }
+
+  select {
+    width: 100%;
+    padding: 8px 0px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: white;
+    cursor: pointer;
+  }
+
+  select:focus {
+    outline: none;
+    border-color: #007bff;
+  }
 </style>
 
 <form on:submit|preventDefault={handleSubmit}>
@@ -86,6 +103,13 @@
   <div>
     <label for="channelName">데이터 조회할 채널 name을 입력해주세요.</label>
     <input type="text" id="channelName" bind:value={channelName} />
+  </div>
+  <div>
+    <label for="condition">데이터 조회 조건을 선택해주세요.</label>
+    <select id="condition" bind:value={condition}>
+      <option value={YoutubeCheckCondition.All}>전체</option>
+      <option value={YoutubeCheckCondition.LatestData}>최신 50개</option>
+    </select>
   </div>
   <button type="submit" disabled={downloading}>Download CSV</button>
 </form>

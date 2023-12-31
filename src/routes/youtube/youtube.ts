@@ -1,4 +1,5 @@
 import axios from "axios";
+import { YoutubeCheckCondition } from "./enum";
 
 export const convertISO8601ToTime = (duration: any): any => {
   try {
@@ -48,7 +49,8 @@ export const getPlaylistItems = async (
   apiKey: string,
   playlistId: any,
   nextPageToken = "",
-  allVideos: any[] = []
+  allVideos: any[] = [],
+  condition: YoutubeCheckCondition
 ): Promise<any> => {
   const maxResults = 50; // 한 번의 요청으로 가져올 최대 항목 수
   let url = `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId=${playlistId}&maxResults=${maxResults}&key=${apiKey}`;
@@ -62,12 +64,16 @@ export const getPlaylistItems = async (
     const items = response.data.items;
     allVideos.push(...items);
 
+    if (condition === YoutubeCheckCondition.LatestData) {
+      return allVideos;
+    }
     if (response.data.nextPageToken) {
       await getPlaylistItems(
         apiKey,
         playlistId,
         response.data.nextPageToken,
-        allVideos
+        allVideos,
+        condition
       );
     }
 
@@ -136,7 +142,8 @@ export const getVideoDetailsBatch = async (
 
 export const getYouTubeChannelData = async (
   apiKey: string,
-  channelName: string
+  channelName: string,
+  condition: YoutubeCheckCondition
 ) => {
   try {
     const channelId = await getChannelId(apiKey, channelName);
@@ -155,7 +162,13 @@ export const getYouTubeChannelData = async (
     const playlistId =
       response.data.items[0].contentDetails.relatedPlaylists.uploads;
 
-    const videoList = await getPlaylistItems(apiKey, playlistId);
+    const videoList = await getPlaylistItems(
+      apiKey,
+      playlistId,
+      "",
+      [],
+      condition
+    );
 
     const videos = videoList.map((item: any) => {
       return {
